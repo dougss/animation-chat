@@ -8,6 +8,9 @@ import {
   ItemMessage,
   Footer,
   MessagesBlock,
+  ListOptions,
+  OptionItem,
+  CircleOption,
 } from "./components/StyledComponents";
 import { _MESSAGES } from "./messages";
 
@@ -15,7 +18,10 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [currentyIndex, setCurrentyIndex] = useState();
   const [activeInput, setActiveInput] = useState();
+  const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({});
+
+  const [optionSelected, setOptionSelected] = useState({});
 
   const messagesRef = useRef();
 
@@ -24,15 +30,21 @@ function App() {
   }, []);
 
   useEffect(() => {
+    console.log("App -> form", form);
+  }, [form]);
+
+  useEffect(() => {
+    setShowForm(!!activeInput);
+  }, [activeInput]);
+
+  useEffect(() => {
     insertMessage({ ..._MESSAGES[currentyIndex] });
   }, [currentyIndex]);
 
   useEffect(() => {
-    messagesRef.current.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "start",
-    });
+    if (messagesRef.current) {
+      messagesRef.current.scrollIntoView(true);
+    }
   }, [messages]);
 
   const insertMessage = (message) => {
@@ -52,10 +64,10 @@ function App() {
     return setCurrentyIndex(currentyIndex + 1);
   };
 
-  const setValueInput = () => {
+  const setValueInput = (value) => {
     insertMessage(activeInput);
     setActiveInput(null);
-    setForm({ ...form, [activeInput.variable]: "DOuglas" });
+    setForm({ ...form, [activeInput.variable]: value });
     setCurrentyIndex(currentyIndex + 2);
   };
 
@@ -64,7 +76,7 @@ function App() {
       <Page>
         <Title>Chat</Title>
 
-        <MessagesBlock ref={messagesRef}>
+        <MessagesBlock>
           <MessagesList>
             {messages.map((item, index) => {
               if (item.createMessage && item.variable) {
@@ -73,14 +85,14 @@ function App() {
 
               if (item.type === "user") {
                 return (
-                  <ItemMessage right key={index}>
+                  <ItemMessage right key={index} ref={messagesRef}>
                     {item.message}
                   </ItemMessage>
                 );
               }
 
               return (
-                <ItemMessage left key={index}>
+                <ItemMessage left key={index} ref={messagesRef}>
                   <Typewriter
                     text={item.message}
                     onComplete={() => onComplete(item)}
@@ -88,13 +100,31 @@ function App() {
                 </ItemMessage>
               );
             })}
+
+            {showForm && activeInput && activeInput.options && (
+              <ListOptions>
+                {activeInput.options.map((option, index) => (
+                  <OptionItem
+                    key={index}
+                    ref={messagesRef}
+                    onClick={() => setOptionSelected(option)}
+                  >
+                    <CircleOption active={optionSelected.id === option.id} />
+                    <span>{option.value}</span>
+                  </OptionItem>
+                ))}
+              </ListOptions>
+            )}
           </MessagesList>
         </MessagesBlock>
 
-        {activeInput && (
+        {showForm && activeInput && (
           <Footer>
-            sdaadadsa
-            <button onClick={setValueInput}>Click!</button>
+            <activeInput.form
+              confirmAction={setValueInput}
+              label={activeInput.variable}
+              optionSelected={optionSelected}
+            />
           </Footer>
         )}
       </Page>
