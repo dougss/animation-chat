@@ -7,6 +7,10 @@ export const Container = styled.div`
   display: grid;
   grid-template-columns: 700px;
   align-items: center;
+
+  @media (max-width: 576px) {
+    grid-template-columns: auto;
+  }
 `;
 
 export const Page = styled.div`
@@ -18,6 +22,11 @@ export const Page = styled.div`
   grid-template-rows: auto 1fr 80px;
   align-items: start;
   overflow: hidden;
+
+  @media (max-width: 576px) {
+    height: 100vh;
+    width: 100vw;
+  }
 `;
 
 export const Title = styled.h1`
